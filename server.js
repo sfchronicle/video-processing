@@ -191,7 +191,7 @@ app.post('/file-upload', node_upload.single('file'), function (req, res, next) {
     // Return resp
     return res.status( 200 ).send( returnObj );
 
-  } else if (allow_nonvideo_uploads) {
+  } else if (allow_nonvideo_uploads === "true") {
     // If this isn't a video file, just upload it directly for user
     // Upload the file to S3
     uploadFile(fileData.path, formData.prefix+"_"+fileData.originalname);

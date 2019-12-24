@@ -39,6 +39,18 @@ SFC uses a cache URL so users aren't making requests on the S3 bucket resources 
 
 You may just want to use this a simple video upload tool. If so, change that flag to false. But it's helpful for our newsroom teams who want S3 to host things like gif and pngs, since our CMS does not handle those well.
 
+*What's the deal with the unique prefix field?*
+
+This app is designed to upload resources to the S3 bucket using the following string:
+
+`<prefix>_<original file name>.<various extensions>`
+
+By default, it will populate with a fresh unix timestamp each day. Today's is 1577174400.
+
+The prefix was a way to strike a balance between having files accidentally replace each other (myvideo.mp4 replaces an earlier myvideo.mp4) and having each file at a unique S3 path, creating tons of unneeded files (since video editors will make tweaks and reupload several times).
+
+If editors are working on an ongoing project, they can also create and use their own arbitrary prefix to always update the same video.
+
 *You wrote XYZ in a dumb, inefficient way. How do I file a complaint?*
 
 Better yet, file a pull request! This was written as a kludge and could definitely use some optimization. Or extra customization options!
