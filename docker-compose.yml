@@ -1,0 +1,17 @@
+version: '3'
+services:
+  api:
+    image: video-processing
+    build: .
+    ports:
+      - "8003:8003"
+
+  web-cli:
+    image: video-processing
+    networks:
+      - backend
+    command: sh
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,184 @@
+<html>
+   
+   <head>
+      <style>
+         .error {color: #FF0000;}
+         .container.form-wrapper {
+            max-width: 750px;
+         }
+         button.submit {
+            margin-top: 30px;
+         }
+         .alert-success {
+            margin-top: 30px;
+         }
+         .form-wrapper img {
+         		width: 100%;
+         }
+         .dropzone {
+	         	border: 2px dashed #0087F7 !important;
+				    border-radius: 5px;
+				    background: #eee;
+				    cursor: pointer;
+				    min-height: 150px;
+				    padding: 54px;
+				    text-align: center;
+				    font-size: 20px;
+         }
+         #waiting-note, #complete, #file-output {
+            display: none;
+         }
+      </style>
+      <link href="./bootstrap-theme.css" rel="stylesheet" type="text/css" />
+      <link href="./bootstrap.css" rel="stylesheet" type="text/css" />
+      <link href="./dropzone.css" rel="stylesheet" type="text/css" />
+      <script src="https://projects.sfchronicle.com/shared/js/jquery.min.js"></script>
+      <script src="https://projects.sfchronicle.com/shared/js/jquery-ui.min.js"></script>
+      <script src="./dropzone.js"></script>
+      <link href="https://projects.sfchronicle.com/shared/js/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+   </head>
+   
+   <body> 
+    <div class="container form-wrapper">
+      <h2>SFC Video Compression Bot</h2>
+      <div style="padding-top:42.400%;position:relative;"><iframe src="https://gifer.com/embed/2Muo" width="100%" height="100%" style='position:absolute;top:0;left:0;' frameBorder="0" allowFullScreen></iframe></div>
+      <p>Drop your local video here and the compression bot will create the MP4 and M3U8 versions to use online. Bonus poster image included.</p>
+
+      <div class="form-group">
+        <label for="nameInput">Unique prefix (the default works)</label>
+        <input type="text" class="form-control" autocomplete="off" id="prefix" placeholder="Enter your names" name="prefix">
+      </div>
+
+      <div class="form-group">
+        <label for="formatInput">Output quality</label>
+        <select id="quality" name="format" class="form-control">
+					<option value="medium" selected>Medium</option>
+					<option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="formatInput">Output size</label>
+        <select id="size" name="size" class="form-control">
+					<option value="original">Original</option>
+					<option value="tablet" selected>Tablet (good choice for AMP)</option>
+					<option value="mobile">Mobile</option>
+        </select>
+      </div>
+      
+      <form class="dropzone">
+      	<div class="dz-message needsclick">
+			    Drop files here or click to upload<br /><br />Upload will start automatically
+			  </div>
+			  <div class="fallback">
+			    <input name="file" type="file" />
+			  </div>
+			</form>
+      
+      <div id="waiting-note">
+        <div style="padding-top:40.250%;position:relative;"><iframe src="https://gifer.com/embed/97rZ" width="100%" height="100%" style='position:absolute;top:0;left:0;' frameBorder="0" allowFullScreen></iframe></div>
+        <p>Shaving down your files, please wait...</p>
+        <p>In the meantime, you can go ahead and slot the URLs below, they will be live shortly.</p>
+      </div>
+
+      <div id="complete">
+        <div style="padding-top:41.905%;position:relative;"><iframe src="https://gifer.com/embed/ON09" width="100%" height="100%" style='position:absolute;top:0;left:0;' frameBorder="0" allowFullScreen></iframe></div>
+        <p>Your files are ready! The URLs below are live and ready to use.</p>
+      </div>
+
+      <div id="output">
+				<h3>Compression Output</h3>
+				<p>Your output URLs will be generated here</p>
+				<p><strong>Desktop video:</strong> <a id="desktopLink"></a></p>
+				<p><strong>Mobile video:</strong> <a id="mobileLink"></a></p>
+				<p><strong>Poster image:</strong> <a id="posterLink"></a></p>
+			</div>
+
+      <div id="file-output">
+        <h3>Compression Output</h3>
+        <p>Your output URLs will be generated here</p>
+        <p><strong>File:</strong> <a id="fileLink"></a></p>
+      </div>
+
+    </div>
+ 
+    <script>
+    	// Disabling autoDiscover, otherwise Dropzone will try to attach twice
+			Dropzone.autoDiscover = false;
+      let checkURL = null;
+
+      $(() => {      	
+        // Will generate a new prefix timestamp each day
+      	var d = new Date();
+				var year = d.getUTCFullYear();
+				var month = d.getUTCMonth();
+				var day = d.getUTCDate();
+				var startHour = new Date(year,month,day,0,0,0,0);
+        $("#prefix").attr("value", startHour.getTime()/1000);
+
+        // Init dropzone
+        var myDropzone = new Dropzone(".dropzone", { 
+        	url: "/file-upload", 
+        	maxFiles: 1,
+          success: function(file, response){
+            if (response.desktop_url){
+              // File is on server but being processed -- let the user know
+              $("#waiting-note").show();
+              // Keep checking until we verify it exists
+              checkURL = setInterval(() => {
+                $.ajax({
+                  url: response.desktop_url,
+                  type: "HEAD",
+                  success : function(){
+                    // Show success message
+                    $("#waiting-note").hide();
+                    $("#complete").show();
+                    $(".dropzone").show();
+                    clearInterval(checkURL);  
+                    checkURL = null; 
+                  }      
+                });
+              }, 5000);
+              // Show full output
+              $("#output").show();
+              $("#file-output").hide();
+              // Show the links early
+              $("#desktopLink").attr("href", response.desktop_url).text(response.desktop_url);
+              $("#mobileLink").attr("href", response.mobile_url).text(response.mobile_url);
+              $("#posterLink").attr("href", response.poster_url).text(response.poster_url);
+            } else if (response.file_url){
+              $("#complete").show();
+              // Show just file output
+              $("#output").hide();
+              $("#file-output").show();
+              // Show the file link 
+              $("#fileLink").attr("href", response.file_url).text(response.file_url);
+            }
+          }
+        });
+        myDropzone.on("sending", function(file, xhr, formData) {
+          // Hide all the progress stuff
+          $("#waiting-note").hide();
+          $("#complete").hide();
+				  // Will send the filesize along with the file as POST data
+				  formData.append("formData", JSON.stringify({
+				  	prefix: $("#prefix").val(),
+				  	quality: $("#quality").val(),
+				  	size: $("#size").val()
+				  }));
+				});
+				// Remove when finished
+				myDropzone.on("complete", function(file) {
+					setTimeout(() => {
+						myDropzone.removeFile(file);
+            // If we're still waiting for upload, hide the dropzone
+            if (checkURL !== null){
+              $(".dropzone").hide();
+            }
+					}, 2500);
+				});
+      });
+    </script>
+      
+   </body>
+</html>
