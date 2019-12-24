@@ -1,7 +1,8 @@
 # SFC Video Processing
 
 ![Slate](https://files.sfchronicle.com/static-assets/misc/slate.jpg)
-Photo by Donovan Silva on Unsplash
+
+<sup>Photo by Donovan Silva on Unsplash</sup>
 
 Compress videos the SF Chronicle way! This repo creates a simple config/upload UI backed by an express server in a Docker container. By dropping a video onto the dropzone, the app will 
 1. Process your video into .mp4 (desktop) and .m3u8 (mobile) formats
