@@ -1,17 +1,29 @@
 version: '3'
 services:
   api:
+    networks:
+      # you may set custom IP addresses
+      custom_net:
+        ipv4_address: 172.34.0.2
     image: video-processing
     build: .
     ports:
       - "8003:8003"
 
   web-cli:
-    image: video-processing
     networks:
-      - backend
+      # you may set custom IP addresses
+      custom_net:
+        ipv4_address: 172.34.0.3
+    image: video-processing
     command: sh
 
 networks:
-  backend:
+  # We are creating our own network
+  # If we let it create itself and it creates on the 172.24.0.0 subnet,
+  # It breaks the connection to WCM (since WCM is on that subnet)
+  custom_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.34.0.0/16
