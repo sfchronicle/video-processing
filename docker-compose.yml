@@ -1,4 +1,4 @@
-version: '2.2'
+version: '3'
 services:
   api:
     networks:
@@ -7,10 +7,8 @@ services:
         ipv4_address: 172.34.0.2
     image: video-processing
     build: .
-    mem_limit: 2000000000
-    cpus: 0.9
     ports:
-      - "8003:8003" 
+      - "8003:8003"
 
   web-cli:
     networks:
