@@ -13,7 +13,7 @@
   "dependencies": {
     "@rama41222/node-logger": "^1.0.1",
     "aws-sdk": "^2.594.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dot-prop": "^5.2.0",
