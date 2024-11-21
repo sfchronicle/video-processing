@@ -408,7 +408,7 @@ var Dropzone = function (_Emitter) {
          * This function gets the `File` as argument and can use the `file.name`. The actual name of the
          * file that gets used during the upload can be accessed through `file.upload.filename`.
          */
-        renameFile: null,
+        renameFile: function(file){return file.name.replace(/\s+/g, '-')},
 
         /**
          * If `true` the fallback will be forced. This is very useful to test your server
