@@ -58,6 +58,41 @@
 					<option value="mobile">Mobile</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="sfcCustom" name="sfcCustom"> Enable SFC Custom Processing (Advanced multi-format output)
+          </label>
+        </div>
+      </div>
+
+      <div id="sfcCustomOptions" style="display: none;">
+        <div class="form-group">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="isSquareVideo" name="isSquareVideo"> Square Video (for social media)
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="aspectRatio">Aspect Ratio</label>
+          <select id="aspectRatio" name="aspectRatio" class="form-control">
+            <option value="1" selected>16:9 (Standard)</option>
+            <option value="2">3:2 (Photo)</option>
+            <option value="3">47:36 (Custom)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="removeAudio" name="removeAudio"> Remove Audio
+            </label>
+          </div>
+        </div>
+      </div>
       
       <form class="dropzone">
       	<div class="dz-message needsclick">
@@ -87,6 +122,31 @@
 				<p><strong>Poster image:</strong> <a id="posterLink"></a></p>
 			</div>
 
+      <div id="sfcCustomOutput" style="display: none;">
+        <h3>SFC Custom Processing Output</h3>
+        <p>Your multi-format output URLs will be generated here</p>
+        
+        <h4>MP4 Videos</h4>
+        <p><strong>Desktop (1280px):</strong> <a id="sfcDesktopLink"></a></p>
+        <p><strong>Tablet (960px):</strong> <a id="sfcTabletLink"></a></p>
+        <p><strong>Mobile (480px):</strong> <a id="sfcMobileLink"></a></p>
+        
+        <h4>WebM Videos</h4>
+        <p><strong>Desktop WebM:</strong> <a id="sfcDesktopWebmLink"></a></p>
+        <p><strong>Tablet WebM:</strong> <a id="sfcTabletWebmLink"></a></p>
+        <p><strong>Mobile WebM:</strong> <a id="sfcMobileWebmLink"></a></p>
+        
+        <h4>Poster Images (WebP)</h4>
+        <p><strong>Desktop Poster:</strong> <a id="sfcDesktopPosterLink"></a></p>
+        <p><strong>Tablet Poster:</strong> <a id="sfcTabletPosterLink"></a></p>
+        <p><strong>Mobile Poster:</strong> <a id="sfcMobilePosterLink"></a></p>
+        
+        <!-- <h4>HLS Streams</h4>
+        <p><strong>Desktop HLS:</strong> <a id="sfcDesktopHlsLink"></a></p>
+        <p><strong>Tablet HLS:</strong> <a id="sfcTabletHlsLink"></a></p>
+        <p><strong>Mobile HLS:</strong> <a id="sfcMobileHlsLink"></a></p> -->
+      </div>
+
       <div id="file-output">
         <h3>Compression Output</h3>
         <p>Your output URLs will be generated here</p>
@@ -108,6 +168,15 @@
 				var day = d.getUTCDate();
 				var startHour = new Date(year,month,day,0,0,0,0);
         $("#prefix").attr("value", startHour.getTime()/1000);
+
+        // Show/hide SFC Custom options based on checkbox
+        $("#sfcCustom").change(function() {
+          if ($(this).is(":checked")) {
+            $("#sfcCustomOptions").show();
+          } else {
+            $("#sfcCustomOptions").hide();
+          }
+        });
 
         // Init dropzone
         var myDropzone = new Dropzone(".dropzone", { 
@@ -132,17 +201,55 @@
                   }      
                 });
               }, 5000);
+              
+              //old output fields 
               // Show full output
-              $("#output").show();
-              $("#file-output").hide();
-              // Show the links early
-              $("#desktopLink").attr("href", response.desktop_url).text(response.desktop_url);
-              $("#mobileLink").attr("href", response.mobile_url).text(response.mobile_url);
-              $("#posterLink").attr("href", response.poster_url).text(response.poster_url);
+              // $("#output").show();
+              // $("#file-output").hide();
+              // // Show the links early
+              // $("#desktopLink").attr("href", response.desktop_url).text(response.desktop_url);
+              // $("#mobileLink").attr("href", response.mobile_url).text(response.mobile_url);
+              // $("#posterLink").attr("href", response.poster_url).text(response.poster_url);
+
+              // Check if this is sfcCustom response
+              if (response.desktop_webm) {
+                // SFC Custom response - show sfcCustom output
+                $("#sfcCustomOutput").show();
+                $("#output").hide();
+                $("#file-output").hide();
+                
+                // Show all the sfcCustom links
+                $("#sfcDesktopLink").attr("href", response.desktop_url).text(response.desktop_url);
+                $("#sfcTabletLink").attr("href", response.tablet_url).text(response.tablet_url);
+                $("#sfcMobileLink").attr("href", response.mobile_url).text(response.mobile_url);
+                
+                $("#sfcDesktopWebmLink").attr("href", response.desktop_webm).text(response.desktop_webm);
+                $("#sfcTabletWebmLink").attr("href", response.tablet_webm).text(response.tablet_webm);
+                $("#sfcMobileWebmLink").attr("href", response.mobile_webm).text(response.mobile_webm);
+                
+                $("#sfcDesktopPosterLink").attr("href", response.desktop_poster).text(response.desktop_poster);
+                $("#sfcTabletPosterLink").attr("href", response.tablet_poster).text(response.tablet_poster);
+                $("#sfcMobilePosterLink").attr("href", response.mobile_poster).text(response.mobile_poster);
+                
+                $("#sfcDesktopHlsLink").attr("href", response.desktop_hls).text(response.desktop_hls);
+                $("#sfcTabletHlsLink").attr("href", response.tablet_hls).text(response.tablet_hls);
+                $("#sfcMobileHlsLink").attr("href", response.mobile_hls).text(response.mobile_hls);
+              } else {
+                // Regular response - show standard output
+                $("#output").show();
+                $("#sfcCustomOutput").hide();
+                $("#file-output").hide();
+                // Show the links early
+                $("#desktopLink").attr("href", response.desktop_url).text(response.desktop_url);
+                $("#mobileLink").attr("href", response.mobile_url).text(response.mobile_url);
+                $("#posterLink").attr("href", response.poster_url).text(response.poster_url);
+              }
             } else if (response.file_url){
               $("#complete").show();
               // Show just file output
               $("#output").hide();
+              //new fields
+              $("#sfcCustomOutput").hide();
               $("#file-output").show();
               // Show the file link 
               $("#fileLink").attr("href", response.file_url).text(response.file_url);
@@ -157,7 +264,12 @@
 				  formData.append("formData", JSON.stringify({
 				  	prefix: $("#prefix").val(),
 				  	quality: $("#quality").val(),
-				  	size: $("#size").val()
+				  	size: $("#size").val(),
+            // new fields
+				  	sfcCustom: $("#sfcCustom").is(":checked"),
+				  	isSquareVideo: $("#isSquareVideo").is(":checked"),
+				  	aspectRatio: $("#aspectRatio").val(),
+				  	removeAudio: $("#removeAudio").is(":checked")
 				  }));
 				});
 				// Remove when finished
